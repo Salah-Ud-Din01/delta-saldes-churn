@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: churn
+  annotations:
+    # staging certificates while we test (browsers will warn, that's fine)
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts: [salahud-din.89-167-53-206.sslip.io]
+      secretName: churn-tls
+  rules:
+    # Blank 1: the same address as above
+    - host: salahud-din.89-167-53-206.sslip.io 
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                # Blank 2: the name of your service
+                name: churn 
+                port:
+                  number: 80
