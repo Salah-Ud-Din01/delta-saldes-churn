@@ -191,3 +191,25 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
           tags: ${{ env.IMAGE }}
           cache-from: type=gha
+
+  deploy:
+    needs: docker
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: produktion
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Koppla upp mot klustret
+        env:
+          KUBECONFIG_INNEHALL: ${{ secrets.KUBECONFIG }}
+        run: |
+          mkdir -p ~/.kube
+          printf '%s' "$KUBECONFIG_INNEHALL" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Rulla ut ny version
+        run: |
+          kubectl -n salahud-din apply -f k8s/deployment.yaml -f k8s/service.yaml -f k8s/cloud/ingress.yaml
+          kubectl -n salahud-din set image deployment/churn churn=ghcr.io/salah-ud-din01/delta-saldes-churn:${{ github.sha }}
+          kubectl -n salahud-din rollout status deployment/churn --timeout=180s
