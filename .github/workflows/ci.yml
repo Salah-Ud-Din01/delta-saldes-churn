@@ -125,7 +125,7 @@ jobs:
       packages: write
     env:
       # Taggen är commitens SHA, så imagen går att spåra till koden och modellen.
-      IMAGE: ghcr.io/hencyber/delta-saldes-churn:${{ github.sha }}
+      IMAGE: ghcr.io/salah-ud-din01/delta-saldes-churn:${{ github.sha }}
     steps:
       - uses: actions/checkout@v7
 
