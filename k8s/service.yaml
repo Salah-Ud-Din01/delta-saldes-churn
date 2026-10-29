@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: churn
+spec:
+  # Blank 1: must match the label on the pods in deployment.yaml
+  selector: { app: churn }
+  ports:
+    - port: 80
+      # Blank 2: the port the container listens on
+      targetPort: 8000

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: churn
+spec:
+  replicas: 2                # how many copies Kubernetes keeps running
+  selector:
+    matchLabels: { app: churn }
+  template:
+    metadata:
+      labels: { app: churn }
+    spec:
+      containers:
+        - name: churn
+          # Blank 1: the image, with the full SHA tag (not "latest")
+          image:   ghcr.io/hencyber/delta-saldes-churn:f50f5f195de11c9b5b01cf7a84dde84c4cfc1293
+          ports:
+            # Blank 2: the port the app listens on (see the Dockerfile EXPOSE)
+            - containerPort:  8000
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 512Mi }
+          # Kubernetes only sends traffic when this succeeds
+          readinessProbe:
+            httpGet:
+              # Blank 3: the path of the health check
+              path: /health
+              # Blank 4: the port
+              port: 8000
+          
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
